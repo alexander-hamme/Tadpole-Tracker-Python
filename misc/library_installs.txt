@@ -7,6 +7,9 @@ OpenCV
 conda install -c conda-forge opencv=3.4
 
 
+qimage2ndarray
+conda install -c conda-forge qimage2ndarray
+
 
 Numpy
 conda install numpy

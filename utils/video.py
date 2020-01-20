@@ -1,5 +1,6 @@
 from typing import Union
 from threading import Thread
+from time import sleep
 from cv2 import VideoCapture, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT
 
 
@@ -26,7 +27,9 @@ class VideoStream:
 
     def start(self):
         # start the thread to read frames from the video stream
-        Thread(target=self.update, args=()).start()
+        self.thread = Thread(target=self.update, args=())
+        self.thread.start()
+
         return self
 
     def update(self):
@@ -44,6 +47,7 @@ class VideoStream:
         return self.frame
 
     def stop(self):
-        # indicate that the thread should be stopped
+        # set flag to return from update function
         self.stopped = True
+        self.thread.join()
         self.stream.release()
