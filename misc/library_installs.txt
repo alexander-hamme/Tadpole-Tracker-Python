@@ -1,0 +1,17 @@
+PyQt5
+conda install pyqt=5
+
+# NOTE: PyQt5 seems to currently be incompatible with opencv 4.2, at least via pip and conda install
+
+OpenCV
+conda install -c conda-forge opencv=3.4
+
+
+
+Numpy
+conda install numpy
+
+Kivy
+For audio/video support also install gstreamer and gst-plugins-base
+on OSX and Ubuntu, or ffpyplayer on all platforms.
+conda install -c conda-forge kivy gstreamer gst-plugins-base  (or ffpyplayer on windows/mac)
