@@ -51,3 +51,4 @@ class VideoStream:
         self.stopped = True
         self.thread.join()
         self.stream.release()
+        return True
