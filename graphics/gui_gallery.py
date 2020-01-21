@@ -101,6 +101,7 @@ class WidgetGallery(QDialog):
         togglePushButton.setCheckable(True)
         togglePushButton.setChecked(True)
 
+
         flatPushButton = QPushButton("Flat Push Button")
         flatPushButton.setFlat(True)
 

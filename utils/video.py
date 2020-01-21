@@ -20,16 +20,16 @@ class VideoStream:
         self.grabbed, self.frame = self.stream.read()
 
         # initialize the variable flag used to indicate if the thread should be stopped
-        self.stopped = False
+        self.stopped = True
 
         # if VideoStream.AUTO_START:
         # self.start()
 
     def start(self):
         # start the thread to read frames from the video stream
+        self.stopped = False
         self.thread = Thread(target=self.update, args=())
         self.thread.start()
-
         return self
 
     def update(self):
@@ -46,9 +46,13 @@ class VideoStream:
         # return the frame most recently read
         return self.frame
 
+    def is_streaming(self):
+        return not self.stopped
+
     def stop(self):
-        # set flag to return from update function
-        self.stopped = True
-        self.thread.join()
-        self.stream.release()
-        return True
+
+        if not self.stopped:
+            # set flag first to return from update function
+            self.stopped = True
+            self.thread.join()
+            self.stream.release()

@@ -23,6 +23,13 @@ class MainApp(QWidget):   # QDialog
     def __init__(self, parent=None):
         super(MainApp, self).__init__(parent)
 
+        self.WEBCAM_IS_STREAMING = False
+
+        self.video_stream = None
+        self.video_stream_timer = QTimer()
+        self.video_stream_timer.timeout.connect(self.display_video_stream)
+
+        self.CAN_EXIT = False
 
         # Only add ones to here that may be changed during run
         self.dynamic_inputs = {
@@ -38,9 +45,7 @@ class MainApp(QWidget):   # QDialog
 
         self.do_final_construction()
 
-        self.initialize_video_stream()
-
-        self.CAN_EXIT = False
+        # self.initialize_video_stream()
 
     def vs_radio_button1(self):
         toggled = self.sender().isChecked()
@@ -132,34 +137,66 @@ class MainApp(QWidget):   # QDialog
         radio_button2.toggled.connect(self.vs_radio_button2)
         radio_button1.setChecked(True)
 
-
         checkBox = QCheckBox("Regular check box")
         checkBox.setTristate(False)
         checkBox.setCheckState(Qt.Checked)
-
-
 
         self._video_stream_qlabel = QLabel()
         self._video_stream_qlabel.setFixedSize(self.video_size)
         # self.image_label.setAlignment(Alignment)
         # self.main_layout.addWidget(self._video_stream_qlabel)
 
+        self._toggle_webcam_button = QPushButton("Start Camera")
+        self._toggle_webcam_button.setStyleSheet(
+            "background-color: rgba(46, 204, 113, 1.0)")
+        self._toggle_webcam_button.setCheckable(True)
+        self._toggle_webcam_button.setChecked(False)
+        self._toggle_webcam_button.toggled.connect(self.toggle_webcam)
+
+
         layout = QVBoxLayout()
         layout.addWidget(radio_button1)
         layout.addWidget(radio_button2)
         layout.addWidget(checkBox)
         layout.addWidget(self._video_stream_qlabel)
+        layout.addWidget(self._toggle_webcam_button)
 
         layout.addStretch(stretch=1)
         self.video_stream_box.setLayout(layout)
 
+    def toggle_webcam(self):
+
+        # print(self.sender().isChecked())
+
+        # if self.WEBCAM_IS_STREAMING:
+        if self.sender().isChecked():
+            assert not self.WEBCAM_IS_STREAMING
+            self.video_stream = VideoStream(src=0, target_res=MainApp.CAM_RESOLUTION).start()
+            self.video_stream_timer.start()
+            self._toggle_webcam_button.setText("Stop Camera")
+            self._toggle_webcam_button.setStyleSheet("background-color: red")#"background-color: rgba(46, 204, 113, 1.0)")
+            self.WEBCAM_IS_STREAMING = True
+
+        else:
+            self.video_stream.stop()
+            self.video_stream_timer.stop()
+            self._toggle_webcam_button.setText("Start Camera")
+            self._toggle_webcam_button.setStyleSheet("background-color: rgba(46, 204, 113, 1.0)") #rgba(200, 200, 200, 1.0)")
+            self.WEBCAM_IS_STREAMING = False
+    '''
     def initialize_video_stream(self):
 
-        self.video_stream = VideoStream(src=0, target_res=MainApp.CAM_RESOLUTION).start()
+        if self.WEBCAM_IS_STREAMING:
+            return
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.display_video_stream)
-        self.timer.start(10)
+        self.video_stream = VideoStream(src=0, target_res=MainApp.CAM_RESOLUTION)#.start()
+        self.video_stream_timer = QTimer()
+        self.video_stream_timer.timeout.connect(self.display_video_stream)
+        # self.video_stream_timer.start(10)
+
+        #if TOGGLE
+        #self.timer.stop()
+    '''
 
     def do_final_construction(self):
 
@@ -211,9 +248,12 @@ class MainApp(QWidget):   # QDialog
 
     def attempt_exit(self):
 
-        # Ask User are you sure you want to exit?
-
-        if self.video_stream.stop():
+        if not self.video_stream.is_streaming():
+            self.CAN_EXIT = True
+            return
+        else:
+            # Ask User are you sure you want to exit?
+            self.video_stream.stop()
             self.CAN_EXIT = True
 
     # overridden
