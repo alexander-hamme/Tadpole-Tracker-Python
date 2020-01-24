@@ -52,7 +52,6 @@ class VideoStream:
     def stop(self):
 
         if not self.stopped:
-            # set flag first to return from update function
-            self.stopped = True
-            self.thread.join()
+            self.stopped = True       # set flag first to return from update function
+            self.thread.join()        # thread needs to be terminated before stream is released
             self.stream.release()
