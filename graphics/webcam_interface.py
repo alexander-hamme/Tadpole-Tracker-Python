@@ -25,13 +25,25 @@ class MainApp(QWidget):   # QDialog
 
     PRINT_CAM_LATENCY = True
 
-    WEBCAM_START_BUTTON_CSS = "background-color: rgba(46, 190, 140, 1.0);"
-    WEBCAM_STOP_BUTTON_CSS = "background-color: red; color: black;"
+    WEBCAM_START_BUTTON_CSS = "background-color: rgba(46, 190, 140, 1.0); font-weight: bold;"
+    WEBCAM_STOP_BUTTON_CSS = "background-color: red; color: black; font-weight: bold;"
     WEBCAM_STREAM_BG_CSS = "background-color: rgb(240,240,240);"  # rgb(120,120,130)
     WEBCAM_STREAM_BG_IMG = "background-color: rgb(200,220,250);"
 
+    SAVE_PATH_CSS = "background-color: rgba(230,230,230);"
+
+
+    '''
+    QFont(pointSize=20)
+
+    
+    '''
+
+
     def __init__(self, parent=None):
         super(MainApp, self).__init__(parent)
+
+        self.data_save_path = "sample_data.csv"
 
         self.WEBCAM_IS_STREAMING = False
 
@@ -111,16 +123,17 @@ class MainApp(QWidget):   # QDialog
         if fileName:
             print(fileName)
 
-    def saveFileDialog(self):
+    def set_save_file_path(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(
-            self, "Create a New Data File","example_data.csv",
-            "Text Files (*.txt);;CSV Files (*.csv);;Dat Files (*.dat);;All Files (*)",
+        file_path, _ = QFileDialog.getSaveFileName(
+            self, "Set Data File Path", self.data_save_path,
+            "CSV Files (*.csv);;Text Files (*.txt);;Dat Files (*.dat);;All Files (*)",
             options=options)
 
-        if fileName is not None:
-            print(fileName)
+        if file_path is not None:
+            print(file_path)
+            self.data_save_path = file_path
 
     def create_left_side_box(self):
         """Initialize widgets.
@@ -184,7 +197,7 @@ class MainApp(QWidget):   # QDialog
         wc_radio_button2.toggled.connect(self.webcam_radio_button2)
         wc_radio_button1.setChecked(True)
 
-        wc_check_box = QCheckBox("Regular check box")
+        wc_check_box = QCheckBox("Show predicted trajectories")
         wc_check_box.setTristate(False)
         wc_check_box.toggled.connect(self.webcam_check_box)
         wc_check_box.setCheckState(Qt.Checked)
@@ -197,14 +210,28 @@ class MainApp(QWidget):   # QDialog
         # extensions_dropdown.setWindowTitle("Extensions")
         # extensions_dropdown.addItems(['.csv', '.txt', '.dat'])
 
+        # self._current_save_path = QLabel()
+        # self._current_save_path.setText(self.data_save_path)
+        # self._current_save_path.setStyleSheet(MainApp.SAVE_PATH_CSS)
+        # self._current_save_path.setAutoFillBackground(True)
+
+        self._current_save_path = QLineEdit(self.data_save_path)
+        self._current_save_path.setMaximumWidth(300)
+        self._current_save_path.setStyleSheet(MainApp.SAVE_PATH_CSS)
+        self._current_save_path.setAutoFillBackground(True)
+
 
         save_data_button = QPushButton("Save Data")
         save_data_button.setShortcut("Ctrl+S")
         # save_data_button.setStyleSheet(MainApp.WEBCAM_START_BUTTON_CSS)
-        # self._webcam_toggle_button.setCheckable(True)
-        # self._webcam_toggle_button.setChecked(False)
-        save_data_button.clicked.connect(self.saveFileDialog)
+        save_data_button.clicked.connect(self.set_save_file_path)
 
+        h_layout = QHBoxLayout()
+        h_layout.addWidget(save_data_button)
+        h_layout.addWidget(self._current_save_path)
+
+        # _.setLayout(h_layout)
+        # vs_box_layout.addWidget(_)
 
         self._webcam_stream_qlabel = QLabel()
         self._webcam_stream_qlabel.setFixedSize(self.video_size)
@@ -214,21 +241,26 @@ class MainApp(QWidget):   # QDialog
         # self.main_layout.addWidget(self._video_stream_qlabel)
 
         self._webcam_toggle_button = QPushButton("Start Camera")
+        self._webcam_toggle_button.setMaximumWidth(MainApp.CAM_RESOLUTION[0])
+        self._webcam_toggle_button.setMinimumWidth(MainApp.CAM_RESOLUTION[0])
         self._webcam_toggle_button.setStyleSheet(MainApp.WEBCAM_START_BUTTON_CSS)
         self._webcam_toggle_button.setCheckable(True)
         self._webcam_toggle_button.setChecked(False)
         self._webcam_toggle_button.toggled.connect(self.webcam_toggle_button)
 
-        layout = QVBoxLayout()
-        layout.addWidget(wc_radio_button1)
-        layout.addWidget(wc_radio_button2)
-        layout.addWidget(wc_check_box)
-        layout.addWidget(save_data_button)
-        layout.addWidget(self._webcam_stream_qlabel)
-        layout.addWidget(self._webcam_toggle_button)
+        vs_box_layout = QVBoxLayout()
+        vs_box_layout.addWidget(wc_radio_button1)
+        vs_box_layout.addWidget(wc_radio_button2)
+        vs_box_layout.addWidget(wc_check_box)
 
-        layout.addStretch(stretch=1)
-        self.video_stream_box.setLayout(layout)
+        vs_box_layout.addLayout(h_layout)
+        # vs_box_layout.addWidget(save_data_button)
+
+        vs_box_layout.addWidget(self._webcam_stream_qlabel)
+        vs_box_layout.addWidget(self._webcam_toggle_button)
+
+        vs_box_layout.addStretch(stretch=1)
+        self.video_stream_box.setLayout(vs_box_layout)
 
     '''
     def initialize_video_stream(self):
