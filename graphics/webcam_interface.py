@@ -8,7 +8,7 @@ from os import path
 import cv2
 import sys
 
-from utils.video import VideoStream
+from utils.video import CameraStream
 
 class _MainApp(QDialog):
     pass
@@ -96,7 +96,7 @@ class MainApp(QWidget):   # QDialog
 
         if self.sender().isChecked():
             assert not self.WEBCAM_IS_STREAMING
-            self.video_stream = VideoStream(src=0, target_res=MainApp.CAM_RESOLUTION).start()
+            self.video_stream = CameraStream(src=0, target_res=MainApp.CAM_RESOLUTION).start()
             self.video_stream_timer.start()
             self._webcam_toggle_button.setText("Stop Camera")
             self._webcam_toggle_button.setStyleSheet(MainApp.WEBCAM_STOP_BUTTON_CSS)#"background-color: rgba(46, 204, 113, 1.0)")
@@ -104,7 +104,7 @@ class MainApp(QWidget):   # QDialog
 
         else:
             self.video_stream_timer.stop()
-            self.video_stream.stop()
+            self.video_stream.close()
             self._webcam_stream_qlabel.clear()
             self._webcam_toggle_button.setText("Start Camera")
             self._webcam_toggle_button.setStyleSheet(MainApp.WEBCAM_START_BUTTON_CSS) #rgba(200, 200, 200, 1.0)")
@@ -332,7 +332,7 @@ class MainApp(QWidget):   # QDialog
         else:
             # Ask User are you sure you want to exit?
             self.video_stream_timer.stop()
-            self.video_stream.stop()
+            self.video_stream.close()
             self.CAN_EXIT = True
 
     # overridden
