@@ -5,7 +5,7 @@ from PIL import ImageTk, Image
 
 import cv2
 
-from utils.video import VideoStream
+from utils.video import CameraStream
 
 
 class TrackerApp(tk.Frame):
@@ -23,7 +23,7 @@ class TrackerApp(tk.Frame):
         self.pack()
         self.create_widgets()
 
-        self.video_stream = VideoStream().start()
+        self.video_stream = CameraStream().start()
 
         self.mainloop()
 
@@ -59,7 +59,7 @@ class TrackerApp(tk.Frame):
 
         # self.vs.close
         self.master.destroy()
-        self.video_stream.stop()
+        self.video_stream.close()
     # def __init__(self, window, window_title):
     #     self.window = window
     #     self.window.title(window_title)
