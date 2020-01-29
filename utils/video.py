@@ -35,11 +35,7 @@ class CameraStream:
 
     def update(self):
         # keep looping infinitely until the thread is stopped
-        while True:
-            # if the thread indicator variable is set, stop the thread
-            if self.stopped:
-                return
-
+        while not self.stopped:   # if the thread indicator variable is set, stop the thread
             # otherwise, read the next frame from the stream
             self.grabbed, self.frame = self.stream.read()
 
